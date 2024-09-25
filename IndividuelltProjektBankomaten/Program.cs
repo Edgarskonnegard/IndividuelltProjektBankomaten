@@ -4,7 +4,15 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            string[] usernameArray = {"anders", "elin", "klara", "jan", "göran"};
+            string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
+
+            Console.WriteLine("Välkommen till banken! Ange användarnamn:");
+        }
+
+        static string[][][] Accounts()
+        {
+
         }
     }
 }
