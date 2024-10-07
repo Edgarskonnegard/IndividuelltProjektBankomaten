@@ -66,7 +66,7 @@
         }
         static void Menu()
         {
-            string[] menuItems = { "Option 1", "Option 2", "Option 3", "Option 4" };
+            string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
             int currentSelection = 0;
             ConsoleKey key;
 
@@ -90,5 +90,6 @@
             Console.WriteLine($"You selected {menuItems[currentSelection]}");
 
         }
+
     }
 }
