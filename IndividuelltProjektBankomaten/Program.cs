@@ -6,8 +6,10 @@
         {
             string[] usernameArray = {"anders", "elin", "klara", "jan", "göran"};
             string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
-
             
+            //Console.WriteLine(userAccounts[0,1,1]);
+
+            /*
             if (userLogin(usernameArray, passwordArray) == -1)
             {
                 Console.WriteLine("fel");
@@ -16,6 +18,7 @@
             {
                 Console.WriteLine("rätt");
             }
+            */
             //Menu();
         }
 
@@ -91,5 +94,41 @@
 
         }
 
+        static void Accounts()
+        {
+            //lönekonto
+            //sparkonto
+            //privatkonto
+            //pensionskonto
+            //Investeringssparkonto
+            //Betalkonto
+            //ungdomskonto
+            string[,,] userAccounts =
+            {
+                { { "Lönekonto","a" }, { "Privatkonto","b" } },
+                { { "Lönekonto","c", }, { "12","d" } },
+                { { "Lönekonto","c" }, { "12","d" } },
+                { { "Lönekonto","c" }, { "12","d" } },
+                { { "Lönekonto","c" }, { "12","d" } }
+            };
+            string[,] userIndex1 = 
+            {
+                {"Privatkonto", "1200" },
+                {"Sparkonto", "30000" },
+
+            };
+            string[,] userIndex2 =
+            {
+                {"Privatkonto", "1200" },
+                {"Sparkonto", "30000.0" },
+                {"Lönekonto","0.0" }
+
+            };
+            int[][] intArray = new int[3][];
+
+            intArray[0] = new int[] { 1, 2 };
+            intArray[1] = new int[] { 3, 4, 5 };
+            intArray[2] = new int[] { 6, 7, 8, 9 };
+        }
     }
 }
