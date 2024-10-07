@@ -7,7 +7,15 @@
             string[] usernameArray = {"anders", "elin", "klara", "jan", "göran"};
             string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
 
-            Console.WriteLine("Välkommen till banken! Ange användarnamn:");
+            
+            if (userLogin(usernameArray, passwordArray) == -1)
+            {
+                Console.WriteLine("fel");
+            }
+            else
+            {
+                Console.WriteLine("rätt");
+            }
             //Menu();
         }
 
@@ -16,8 +24,46 @@
         {
             return ;
         }
+        21 oktober branchdag
         */
+        static int userLogin(string[] usernameArray, string[] passwordArray)
+        {
+            //The method does not count wrong username as a login attempt. Does not increase count.
+            int count = 0;
+            Console.WriteLine("Welcome to the bank!");
 
+            Console.WriteLine("Please enter your username: ");
+            string username = Console.ReadLine();
+
+            while (count<3)
+            {
+                
+                if (!Array.Exists(usernameArray, element => element == username)) 
+                {
+                    Console.WriteLine("User does not exist. Try again.");
+                    Console.WriteLine("Please enter your username: ");
+                    username = Console.ReadLine();
+                }
+                else if(Array.Exists(usernameArray, element => element == username))
+                {
+                    Console.WriteLine("Enter your password: ");
+                    string password = passwordArray[Array.IndexOf(usernameArray, username)];
+                    if (Console.ReadLine() == password)
+                    {
+                        Console.WriteLine("Login successful");
+                        return Array.IndexOf(usernameArray, username);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Wrong password! Try again.");
+                    }
+                    count++;
+                }
+            }
+            Console.WriteLine("Attempts reached limit! Program restarting.");
+            return -1;
+            
+        }
         static void Menu()
         {
             string[] menuItems = { "Option 1", "Option 2", "Option 3", "Option 4" };
