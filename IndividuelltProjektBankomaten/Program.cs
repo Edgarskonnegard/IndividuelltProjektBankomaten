@@ -4,52 +4,81 @@
     {
         static void Main(string[] args)
         {
+
             string[] usernameArray = {"anders", "elin", "klara", "jan", "göran"};
             string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
             string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
-            //Console.WriteLine(userAccounts[0,1,1]);
-            bool runProgram = true;
-            while (runProgram)
+
+            string filePath = "..//..//..//exempel.txt";
+
+            string allLines = File.ReadAllText(filePath);
+            string[] lines = allLines.Split('\n');
+            //string str = lines[0].Substring(Array.IndexOf(lines,'{'), lines[0].Length);
+            //foreach (var c in lines[0]) { Console.Write(c); }
+            Console.WriteLine(lines[0].IndexOf('{'));
+            string NameFromFile = lines[0].Substring(lines[0].IndexOf("{")+1, lines[0].IndexOf('}')- lines[0].IndexOf('{')-1);
+            NameFromFile += ", gruber";
+            string[] gruber = NameFromFile.Split(",");
+            foreach (var c in gruber)
             {
-                int userIndex = userLogin(usernameArray, passwordArray);
-                bool backToLogin = false;
-                string[] names = AccountNames(userIndex);
-                double[] amounts = AccountAmounts(userIndex);
-                while (userIndex != -1)
-                {
-                    switch (Menu(menuItems))
-                    {
-                        case 0:
-                            for (int i = 0; i < names.Length; i++)
-                            {
-                                Console.WriteLine($"{names[i]} : {amounts[i]:C}");
-                            }
-                            Console.ReadKey();
-                            break;
-                        case 1:
-                            TransferFunds(names, amounts);
-                            Console.ReadKey();
-                            break;
-                        case 2:
-                            WithdrawFunds(names, amounts);
-                            Console.ReadKey();
-                            break;
-                        case 3:
-                            userIndex = -1;
-                            backToLogin = true;
-
-                            break;
-                    }
-                }
-                if (!backToLogin)
-                {
-                    runProgram = false;
-                }
+                Console.Write(c);
             }
-            
-        }
+                //Console.WriteLine(userAccounts[0,1,1]);
+                //File.WriteAllText("..//..//..//exempel.txt", "hej");
 
-        
+                /*bool runProgram = true;
+                while (runProgram)
+                {
+                    int userIndex = userLogin(usernameArray, passwordArray);
+                    bool backToLogin = false;
+                    while (userIndex != -1)
+                    {
+                        string[] names = AccountNames(userIndex);
+                        double[] amounts = AccountAmounts(userIndex);
+                        switch (Menu(menuItems))
+                        {
+                            case 0:
+                                for (int i = 0; i < names.Length; i++)
+                                {
+                                    Console.WriteLine($"{names[i]} : {amounts[i]:C}");
+                                }
+                                Console.ReadKey();
+                                break;
+                            case 1:
+                                TransferFunds(names, amounts);
+                                Console.ReadKey();
+                                break;
+                            case 2:
+                                WithdrawFunds(names, amounts);
+                                Console.ReadKey();
+                                break;
+                            case 3:
+                                userIndex = -1;
+                                backToLogin = true;
+
+                                break;
+                        }
+                    }
+                    if (!backToLogin)
+                    {
+                        runProgram = false;
+                    }
+                }*/
+
+            }
+
+        static (string[], string[]) LoadLoginDetails()
+        {
+            string filePath = "..//..//..//exempel.txt";
+            
+            string allLines = File.ReadAllText(filePath);
+            string[] lines = allLines.Split('\n');
+
+            string[] username = lines[0].Split(',');
+            string[] password = lines[1].Split(',');
+
+            return (username, password);
+        }
         static int userLogin(string[] usernameArray, string[] passwordArray)
         {
             //The method does not count wrong username as a login attempt. Does not increase count.
