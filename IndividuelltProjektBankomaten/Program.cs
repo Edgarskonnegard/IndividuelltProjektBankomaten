@@ -27,34 +27,17 @@
                         Console.ReadKey() ;
                         break;
                     case 3:
+                        WithdrawFunds(names, amounts);
+                        Console.ReadKey() ;
                         break;
                     case 4:
                         userIndex = -1;
                         break;
-                    default:
-                        break;
                 }
             }
-            /*
-            if (userLogin(usernameArray, passwordArray) == -1)
-            {
-                Console.WriteLine("fel");
-            }
-            else
-            {
-                Console.WriteLine("rätt");
-            }
-            */
-            //Menu();
         }
 
-        /*
-        static string[][][] Accounts()
-        {
-            return ;
-        }
-        21 oktober branchdag
-        */
+        
         static int userLogin(string[] usernameArray, string[] passwordArray)
         {
             //The method does not count wrong username as a login attempt. Does not increase count.
@@ -172,6 +155,28 @@
                 Console.Clear();
                 Console.WriteLine($"{names[from]} : {amounts[from]:C}");
                 Console.WriteLine($"{names[to]} : {amounts[to]:C}");
+            }
+        }
+
+        static void WithdrawFunds(string[] names, double[] amounts)
+        {
+            string[] withdrawOptions = { "100", "200", "500", "1000", "Custom" };
+            Console.WriteLine("choose account for withdrawel");
+            int from = Menu(names);
+            Console.Write("Sum to withdraw: ");
+            switch (Menu(withdrawOptions))
+            {
+
+            }
+            double sum = Convert.ToDouble(Console.ReadLine());
+            if (amounts[from] >= sum)
+            {
+                amounts[from] -= sum;
+                Console.Clear();
+            }
+            else
+            {
+                Console.WriteLine("amount is not available");
             }
         }
     }
