@@ -6,7 +6,7 @@
         {
             string[] usernameArray = {"anders", "elin", "klara", "jan", "göran"};
             string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
-
+            string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
             //Console.WriteLine(userAccounts[0,1,1]);
 
             int userIndex = userLogin(usernameArray, passwordArray);
@@ -14,33 +14,17 @@
             double[] amounts = AccountAmounts(userIndex);
             while (userIndex != -1) 
             {
-                switch (Menu()) {
+                switch (Menu(menuItems)) {
                     case 1:          
                         for (int i = 0; i < names.Length; i++)
                         {
-                            Console.WriteLine($"{names[i]} : {amounts[i]} kr");
+                            Console.WriteLine($"{names[i]} : {amounts[i]:C}");
                         }
                         Console.ReadKey();
                         break;
                     case 2:
-                        Console.WriteLine("Välj konto att flytta pengar");
-                        Console.Write("Från: ");
-                        string from = Console.ReadLine();
-                        Console.WriteLine();
-                        Console.Write("Till: ");
-                        string to = Console.ReadLine();
-                        Console.WriteLine();
-                        Console.Write("Summa: ");
-                        double sum = Convert.ToDouble(Console.ReadLine());
-                        if(amounts[Array.IndexOf(names, from)] >= sum)
-                        {
-                            amounts[Array.IndexOf(names, from)] -= sum;
-                            amounts[Array.IndexOf(names, to)] += sum;
-                            Console.Clear();
-                            Console.WriteLine($"{names[Array.IndexOf(names, from)]} : {amounts[Array.IndexOf(names, from)]} kr");
-                            Console.WriteLine($"{names[Array.IndexOf(names, to)]} : {amounts[Array.IndexOf(names, to)]} kr");
-                        }
-
+                        TransferFunds(names, amounts);
+                        Console.ReadKey() ;
                         break;
                     case 3:
                         break;
@@ -109,9 +93,9 @@
             return -1;
             
         }
-        static int Menu()
+        static int Menu(string[] menuItems)
         {
-            string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
+            //string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
             int currentSelection = 0;
             ConsoleKey key;
 
@@ -165,6 +149,30 @@
             accountAmount[3] = new double[] { 2000.0, 7000.0, 15000.0, 45000.0, 30000.0};
             accountAmount[4] = new double[] { 1000.0, 6000.0};
             return accountAmount[index];
+        }
+
+        static void TransferFunds(string[] names, double[] amounts)
+        {
+            Console.WriteLine("Välj konto att överföra från");
+            int from = Menu(names);
+            Console.WriteLine("Välj konto att överföra till");
+            int to = Menu(names);
+            while (from == to)
+            {
+                Console.WriteLine("Cannot transfer to the same account!");
+                to = Menu(names);
+            }
+            Console.WriteLine();
+            Console.Write("Summa att överföra: ");
+            double sum = Convert.ToDouble(Console.ReadLine());
+            if (amounts[from] >= sum)
+            {
+                amounts[from] -= sum;
+                amounts[to] += sum;
+                Console.Clear();
+                Console.WriteLine($"{names[from]} : {amounts[from]:C}");
+                Console.WriteLine($"{names[to]} : {amounts[to]:C}");
+            }
         }
     }
 }
