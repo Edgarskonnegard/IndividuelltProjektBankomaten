@@ -15,22 +15,22 @@
             while (userIndex != -1) 
             {
                 switch (Menu(menuItems)) {
-                    case 1:          
+                    case 0:          
                         for (int i = 0; i < names.Length; i++)
                         {
                             Console.WriteLine($"{names[i]} : {amounts[i]:C}");
                         }
                         Console.ReadKey();
                         break;
-                    case 2:
+                    case 1:
                         TransferFunds(names, amounts);
                         Console.ReadKey() ;
                         break;
-                    case 3:
+                    case 2:
                         WithdrawFunds(names, amounts);
                         Console.ReadKey() ;
                         break;
-                    case 4:
+                    case 3:
                         userIndex = -1;
                         break;
                 }
@@ -76,7 +76,7 @@
             return -1;
             
         }
-        static int Menu(string[] menuItems)
+        static int Menu(string[] menuItems, string? message = "")
         {
             //string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
             int currentSelection = 0;
@@ -85,10 +85,22 @@
             do
             {
                 Console.Clear();
+                Console.WriteLine(message);
                 for (int i = 0; i < menuItems.Length; i++)
                 {
+                    if(i == currentSelection)
+                    {
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine($"> {menuItems[i]}");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"  {menuItems[i]}");
+                    }
                     // writes the menu with the ">" marker at the current option.
-                    Console.WriteLine(i == currentSelection ? $"> {menuItems[i]}" : $"  {menuItems[i]}");
+                    //Console.WriteLine(i == currentSelection ? $"> {menuItems[i]}" : $"  {menuItems[i]}");
                 }
                 //reads the users key
                 key = Console.ReadKey(true).Key;
@@ -100,7 +112,7 @@
 
             Console.Clear();
             Console.WriteLine($"You selected {menuItems[currentSelection]}");
-            return currentSelection+1;
+            return currentSelection;
 
         }
 
@@ -138,8 +150,9 @@
         {
             Console.WriteLine("Välj konto att överföra från");
             int from = Menu(names);
+            Console.WriteLine($"Du valde {names[from]}");
             Console.WriteLine("Välj konto att överföra till");
-            int to = Menu(names);
+            int to = Menu(names, $"Du valde {names[from]}");
             while (from == to)
             {
                 Console.WriteLine("Cannot transfer to the same account!");
@@ -164,20 +177,34 @@
             Console.WriteLine("choose account for withdrawel");
             int from = Menu(names);
             Console.Write("Sum to withdraw: ");
-            switch (Menu(withdrawOptions))
+            if (Menu(withdrawOptions) != 4)
             {
-
+                double sum = Convert.ToDouble(withdrawOptions[from]);
+                if (amounts[from] >= Math.Abs(sum))
+                {
+                    amounts[from] -= sum;
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.WriteLine("amount is not available");
+                }
             }
-            double sum = Convert.ToDouble(Console.ReadLine());
-            if (amounts[from] >= sum)
+            else 
             {
-                amounts[from] -= sum;
-                Console.Clear();
+                double sum = Convert.ToDouble(Console.ReadLine());
+                if (amounts[from] >= Math.Abs(sum))
+                {
+                    amounts[from] -= sum;
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.WriteLine("amount is not available");
+                }
             }
-            else
-            {
-                Console.WriteLine("amount is not available");
-            }
+            
+            
         }
     }
 }
