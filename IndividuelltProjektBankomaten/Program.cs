@@ -94,41 +94,34 @@
 
         }
 
-        static void Accounts()
+        static string[] AccountNames(int index)
         {
-            //lönekonto
-            //sparkonto
-            //privatkonto
-            //pensionskonto
-            //Investeringssparkonto
-            //Betalkonto
-            //ungdomskonto
-            string[,,] userAccounts =
+            if(index < 0 && index > 4)
             {
-                { { "Lönekonto","a" }, { "Privatkonto","b" } },
-                { { "Lönekonto","c", }, { "12","d" } },
-                { { "Lönekonto","c" }, { "12","d" } },
-                { { "Lönekonto","c" }, { "12","d" } },
-                { { "Lönekonto","c" }, { "12","d" } }
-            };
-            string[,] userIndex1 = 
+                return new string[] {"error"} ;
+            }
+            string[][] accountNames = new string[5][];
+            accountNames[0] = new string[] { "Privatkonto", "Sparkonto" };
+            accountNames[1] = new string[] { "Privatkonto", "Sparkonto", "Lönekonto" };
+            accountNames[2] = new string[] { "Privatkonto", "Sparkonto", "Lönekonto", "Pensionskonto" };
+            accountNames[3] = new string[] { "Privatkonto", "Sparkonto", "Lönekonto", "Pensionskonto", "Investeringssparkonto" };
+            accountNames[4] = new string[] { "Ungdomskonto", "Sparkonto"};
+            return accountNames[index];
+        }
+
+        static double[] AccountAmounts(int index)
+        {
+            if (index < 0 && index > 4)
             {
-                {"Privatkonto", "1200" },
-                {"Sparkonto", "30000" },
-
-            };
-            string[,] userIndex2 =
-            {
-                {"Privatkonto", "1200" },
-                {"Sparkonto", "30000.0" },
-                {"Lönekonto","0.0" }
-
-            };
-            int[][] intArray = new int[3][];
-
-            intArray[0] = new int[] { 1, 2 };
-            intArray[1] = new int[] { 3, 4, 5 };
-            intArray[2] = new int[] { 6, 7, 8, 9 };
+                return new double[] { 0.0 };
+            }
+            double[][] accountAmount = new double[5][];
+            accountAmount[0] = new double[] { 5000.0, 15000.0 };
+            accountAmount[1] = new double[] { 3000.0, 10000.0, 25000.0 };
+            accountAmount[2] = new double[] { 4000.0, 8000.0, 20000.0, 50000.0};
+            accountAmount[3] = new double[] { 2000.0, 7000.0, 15000.0, 45000.0, 30000.0};
+            accountAmount[4] = new double[] { 1000.0, 6000.0};
+            return accountAmount[index];
         }
     }
 }
