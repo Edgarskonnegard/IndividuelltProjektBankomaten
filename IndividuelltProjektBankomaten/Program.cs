@@ -8,33 +8,45 @@
             string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
             string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
             //Console.WriteLine(userAccounts[0,1,1]);
-
-            int userIndex = userLogin(usernameArray, passwordArray);
-            string[] names = AccountNames(userIndex);
-            double[] amounts = AccountAmounts(userIndex);
-            while (userIndex != -1) 
+            bool runProgram = true;
+            while (runProgram)
             {
-                switch (Menu(menuItems)) {
-                    case 0:          
-                        for (int i = 0; i < names.Length; i++)
-                        {
-                            Console.WriteLine($"{names[i]} : {amounts[i]:C}");
-                        }
-                        Console.ReadKey();
-                        break;
-                    case 1:
-                        TransferFunds(names, amounts);
-                        Console.ReadKey() ;
-                        break;
-                    case 2:
-                        WithdrawFunds(names, amounts);
-                        Console.ReadKey() ;
-                        break;
-                    case 3:
-                        userIndex = -1;
-                        break;
+                int userIndex = userLogin(usernameArray, passwordArray);
+                bool backToLogin = false;
+                string[] names = AccountNames(userIndex);
+                double[] amounts = AccountAmounts(userIndex);
+                while (userIndex != -1)
+                {
+                    switch (Menu(menuItems))
+                    {
+                        case 0:
+                            for (int i = 0; i < names.Length; i++)
+                            {
+                                Console.WriteLine($"{names[i]} : {amounts[i]:C}");
+                            }
+                            Console.ReadKey();
+                            break;
+                        case 1:
+                            TransferFunds(names, amounts);
+                            Console.ReadKey();
+                            break;
+                        case 2:
+                            WithdrawFunds(names, amounts);
+                            Console.ReadKey();
+                            break;
+                        case 3:
+                            userIndex = -1;
+                            backToLogin = true;
+
+                            break;
+                    }
+                }
+                if (!backToLogin)
+                {
+                    runProgram = false;
                 }
             }
+            
         }
 
         
