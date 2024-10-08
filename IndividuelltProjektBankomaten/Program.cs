@@ -6,9 +6,51 @@
         {
             string[] usernameArray = {"anders", "elin", "klara", "jan", "göran"};
             string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
-            
+
             //Console.WriteLine(userAccounts[0,1,1]);
 
+            int userIndex = userLogin(usernameArray, passwordArray);
+            string[] names = AccountNames(userIndex);
+            double[] amounts = AccountAmounts(userIndex);
+            while (userIndex != -1) 
+            {
+                switch (Menu()) {
+                    case 1:          
+                        for (int i = 0; i < names.Length; i++)
+                        {
+                            Console.WriteLine($"{names[i]} : {amounts[i]} kr");
+                        }
+                        Console.ReadKey();
+                        break;
+                    case 2:
+                        Console.WriteLine("Välj konto att flytta pengar");
+                        Console.Write("Från: ");
+                        string from = Console.ReadLine();
+                        Console.WriteLine();
+                        Console.Write("Till: ");
+                        string to = Console.ReadLine();
+                        Console.WriteLine();
+                        Console.Write("Summa: ");
+                        double sum = Convert.ToDouble(Console.ReadLine());
+                        if(amounts[Array.IndexOf(names, from)] >= sum)
+                        {
+                            amounts[Array.IndexOf(names, from)] -= sum;
+                            amounts[Array.IndexOf(names, to)] += sum;
+                            Console.Clear();
+                            Console.WriteLine($"{names[Array.IndexOf(names, from)]} : {amounts[Array.IndexOf(names, from)]} kr");
+                            Console.WriteLine($"{names[Array.IndexOf(names, to)]} : {amounts[Array.IndexOf(names, to)]} kr");
+                        }
+
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        userIndex = -1;
+                        break;
+                    default:
+                        break;
+                }
+            }
             /*
             if (userLogin(usernameArray, passwordArray) == -1)
             {
@@ -67,7 +109,7 @@
             return -1;
             
         }
-        static void Menu()
+        static int Menu()
         {
             string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
             int currentSelection = 0;
@@ -79,7 +121,7 @@
                 for (int i = 0; i < menuItems.Length; i++)
                 {
                     // writes the menu with the ">" marker at the current option.
-                    Console.WriteLine(i == currentSelection ? $"> {menuItems[i]}" : $"{menuItems[i]}");
+                    Console.WriteLine(i == currentSelection ? $"> {menuItems[i]}" : $"  {menuItems[i]}");
                 }
                 //reads the users key
                 key = Console.ReadKey(true).Key;
@@ -91,6 +133,7 @@
 
             Console.Clear();
             Console.WriteLine($"You selected {menuItems[currentSelection]}");
+            return currentSelection+1;
 
         }
 
