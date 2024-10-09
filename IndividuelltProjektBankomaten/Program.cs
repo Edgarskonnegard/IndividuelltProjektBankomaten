@@ -23,10 +23,10 @@
                     break;
                 }
                 int userIndex = userLogin(usernameArray, passwordArray);
+                string[] names = AccountNames(userIndex);
+                double[] amounts = AccountAmounts(userIndex);
                 while (userIndex != -1)
                 {
-                    string[] names = AccountNames(userIndex);
-                    double[] amounts = AccountAmounts(userIndex);
                     switch (Menu(menuItems))
                     {
                         case 0:
@@ -64,15 +64,9 @@
             string allLines = File.ReadAllText(filePath);
             string[] lines = allLines.Split('\n');
 
-            //string category = lines[0].Substring(0, lines[0].IndexOf("{") - 1);
-            //Console.WriteLine(category);
             string usernameString = lines[0].Substring(lines[0].IndexOf("{") + 1, lines[0].IndexOf('}') - lines[0].IndexOf('{') - 1);
             string passwordString = lines[1].Substring(lines[1].IndexOf("{") + 1, lines[1].IndexOf('}') - lines[1].IndexOf('{') - 1);
-            //NameFromFile += ", gruber";
-            //Console.WriteLine(NameFromFile);
-
-            //string[] gruber = NameFromFile.Split(",");
-
+            
             string[] username = usernameString.Split(',');
             string[] password = passwordString.Split(',');
 
@@ -90,27 +84,27 @@
                 
                 if (!Array.Exists(usernameArray, element => element == username)) 
                 {
-                    Console.WriteLine("User does not exist. Try again.");
-                    Console.WriteLine("Please enter your username: ");
+                    Console.WriteLine("Användarnamnet är fel. Försök igen.");
+                    Console.WriteLine("Ange lösenord: ");
                     username = Console.ReadLine();
                 }
                 else if(Array.Exists(usernameArray, element => element == username))
                 {
-                    Console.WriteLine("Enter your password: ");
+                    Console.WriteLine("Ange ditt lösenord: ");
                     string password = passwordArray[Array.IndexOf(usernameArray, username)];
                     if (Console.ReadLine() == password)
                     {
-                        Console.WriteLine("Login successful");
+                        Console.WriteLine("Du är inloggad");
                         return Array.IndexOf(usernameArray, username);
                     }
                     else
                     {
-                        Console.WriteLine("Wrong password! Try again.");
+                        Console.WriteLine("Fel lösenord! Försök igen.");
                     }
                     count++;
                 }
             }
-            Console.WriteLine("Attempts reached limit! Program restarting.");
+            Console.WriteLine("Inloggning misslyckades!");
             return -1;
             
         }
@@ -204,7 +198,7 @@
             int to = Menu(names, $"Du valde {names[from]}, välj konto att överföra till", from);
             while (from == to)
             {
-                Console.WriteLine("Cannot transfer to the same account!");
+                Console.WriteLine("Kan ej överföra till samma konto!");
                 to = Menu(names, $"Du valde {names[from]}, välj konto att överföra till", from);
             }
             Console.WriteLine();
@@ -223,13 +217,13 @@
         static void WithdrawFunds(string[] names, double[] account, string password)
         {
             string[] withdrawOptions = { "100", "200", "500", "1000", "Custom" };
-            Console.WriteLine("choose account for withdrawel");
+            Console.WriteLine("Välj konto för uttag");
             int choosen = Menu(names);
-            Console.Write("Sum to withdraw: ");
+            Console.Write("Summa att ta ut: ");
             if (Menu(withdrawOptions) != 4)
             {
                 double sum = Convert.ToDouble(withdrawOptions[choosen]);
-                Console.Write("Enter your pin code: ");
+                Console.Write("Ange pinkod: ");
                 int count = 1;
                 while (Console.ReadLine()!=password) 
                 {
@@ -243,8 +237,17 @@
             else 
             {
                 double sum = Convert.ToDouble(Console.ReadLine());
+                Console.Write("Ange pinkod: ");
+                int count = 1;
+                while (Console.ReadLine() != password)
+                {
+                    if (count == 2)
+                    {
+                        return;
+                    }
+                }
                 WithdrawAvailableAmount(account, choosen, sum);
-                
+
             }
             
             
@@ -254,12 +257,13 @@
            
             if (account[choosen] >= Math.Abs(sum))
             {
-                account[choosen] -= sum;
+                account[choosen] = account[choosen]-sum;
                 Console.Clear();
+                Console.WriteLine(account[choosen]);
             }
             else
             {
-                Console.WriteLine("amount is not available");
+                Console.WriteLine("Kontot saknar tillgängliga medel");
             }
         }
     }
