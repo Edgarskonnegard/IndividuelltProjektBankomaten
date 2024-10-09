@@ -5,68 +5,58 @@
         static void Main(string[] args)
         {
 
-            string[] usernameArray = {"anders", "elin", "klara", "jan", "göran"};
-            string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
+            //string[] usernameArray = {"anders", "elin", "klara", "jan", "göran"};
+            //string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
+            (string[] usernameArray, string[] passwordArray) = LoadLoginDetails();
             string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
 
             string filePath = "..//..//..//exempel.txt";
+            //Console.WriteLine(userAccounts[0,1,1]);
+            //File.WriteAllText("..//..//..//exempel.txt", "hej");
 
-            string allLines = File.ReadAllText(filePath);
-            string[] lines = allLines.Split('\n');
-            //string str = lines[0].Substring(Array.IndexOf(lines,'{'), lines[0].Length);
-            //foreach (var c in lines[0]) { Console.Write(c); }
-            Console.WriteLine(lines[0].IndexOf('{'));
-            string NameFromFile = lines[0].Substring(lines[0].IndexOf("{")+1, lines[0].IndexOf('}')- lines[0].IndexOf('{')-1);
-            NameFromFile += ", gruber";
-            string[] gruber = NameFromFile.Split(",");
-            foreach (var c in gruber)
+            bool runProgram = true;
+            while (runProgram)
             {
-                Console.Write(c);
-            }
-                //Console.WriteLine(userAccounts[0,1,1]);
-                //File.WriteAllText("..//..//..//exempel.txt", "hej");
-
-                /*bool runProgram = true;
-                while (runProgram)
+                string[] welcome = { "Logga in", "Avsluta programmet" };
+                if (Menu(welcome, "Välkommen till Varebergs Campusbank") == 1)
                 {
-                    int userIndex = userLogin(usernameArray, passwordArray);
-                    bool backToLogin = false;
-                    while (userIndex != -1)
+                    break;
+                }
+                int userIndex = userLogin(usernameArray, passwordArray);
+                while (userIndex != -1)
+                {
+                    string[] names = AccountNames(userIndex);
+                    double[] amounts = AccountAmounts(userIndex);
+                    switch (Menu(menuItems))
                     {
-                        string[] names = AccountNames(userIndex);
-                        double[] amounts = AccountAmounts(userIndex);
-                        switch (Menu(menuItems))
-                        {
-                            case 0:
-                                for (int i = 0; i < names.Length; i++)
-                                {
-                                    Console.WriteLine($"{names[i]} : {amounts[i]:C}");
-                                }
-                                Console.ReadKey();
-                                break;
-                            case 1:
-                                TransferFunds(names, amounts);
-                                Console.ReadKey();
-                                break;
-                            case 2:
-                                WithdrawFunds(names, amounts);
-                                Console.ReadKey();
-                                break;
-                            case 3:
-                                userIndex = -1;
-                                backToLogin = true;
-
-                                break;
-                        }
+                        case 0:
+                            for (int i = 0; i < names.Length; i++)
+                            {
+                                Console.WriteLine($"{names[i]} : {amounts[i]:C}");
+                            }
+                            Console.ReadKey();
+                            break;
+                        case 1:
+                            TransferFunds(names, amounts);
+                            Console.ReadKey();
+                            break;
+                        case 2:
+                            WithdrawFunds(names, amounts, passwordArray[userIndex]);
+                            Console.ReadKey();
+                            break;
+                        case 3:
+                            userIndex = -1;
+                            break;
                     }
-                    if (!backToLogin)
-                    {
-                        runProgram = false;
-                    }
-                }*/
-
+                }
             }
 
+        }
+        static void WriteFile(string username, string password)
+        {
+            string filePath = "..//..//..//exempel.txt";
+            File.WriteAllText(filePath, "username {" + username + "}\n password {"+password+"}");
+        }
         static (string[], string[]) LoadLoginDetails()
         {
             string filePath = "..//..//..//exempel.txt";
@@ -74,8 +64,17 @@
             string allLines = File.ReadAllText(filePath);
             string[] lines = allLines.Split('\n');
 
-            string[] username = lines[0].Split(',');
-            string[] password = lines[1].Split(',');
+            //string category = lines[0].Substring(0, lines[0].IndexOf("{") - 1);
+            //Console.WriteLine(category);
+            string usernameString = lines[0].Substring(lines[0].IndexOf("{") + 1, lines[0].IndexOf('}') - lines[0].IndexOf('{') - 1);
+            string passwordString = lines[1].Substring(lines[1].IndexOf("{") + 1, lines[1].IndexOf('}') - lines[1].IndexOf('{') - 1);
+            //NameFromFile += ", gruber";
+            //Console.WriteLine(NameFromFile);
+
+            //string[] gruber = NameFromFile.Split(",");
+
+            string[] username = usernameString.Split(',');
+            string[] password = passwordString.Split(',');
 
             return (username, password);
         }
@@ -83,9 +82,7 @@
         {
             //The method does not count wrong username as a login attempt. Does not increase count.
             int count = 0;
-            Console.WriteLine("Welcome to the bank!");
-
-            Console.WriteLine("Please enter your username: ");
+            Console.WriteLine("Vänligen ange ditt användarnamn: ");
             string username = Console.ReadLine();
 
             while (count<3)
@@ -117,7 +114,7 @@
             return -1;
             
         }
-        static int Menu(string[] menuItems, string? message = "")
+        static int Menu(string[] menuItems, string? message = "", int? previousSelection = -1)
         {
             //string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
             int currentSelection = 0;
@@ -126,7 +123,11 @@
             do
             {
                 Console.Clear();
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Black;
                 Console.WriteLine(message);
+                Console.ResetColor();
+                Console.WriteLine();
                 for (int i = 0; i < menuItems.Length; i++)
                 {
                     if(i == currentSelection)
@@ -134,6 +135,13 @@
                         Console.BackgroundColor = ConsoleColor.White;
                         Console.ForegroundColor = ConsoleColor.Black;
                         Console.WriteLine($"> {menuItems[i]}");
+                        Console.ResetColor();
+                    }
+                    else if(i == previousSelection)
+                    {
+                        //Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"  {menuItems[i]}");
                         Console.ResetColor();
                     }
                     else
@@ -148,11 +156,11 @@
                 //Logic for traversing the menu for what happens if you reach the edges. Last and first option.
                 if (key == ConsoleKey.UpArrow) currentSelection = (currentSelection == 0) ? menuItems.Length - 1 : currentSelection - 1;
                 if (key == ConsoleKey.DownArrow) currentSelection = (currentSelection == menuItems.Length - 1) ? 0 : currentSelection + 1;
+
                 // the loop continues until the user presses enter to chose a selected option.
             } while (key != ConsoleKey.Enter);
 
             Console.Clear();
-            Console.WriteLine($"You selected {menuItems[currentSelection]}");
             return currentSelection;
 
         }
@@ -193,11 +201,11 @@
             int from = Menu(names);
             Console.WriteLine($"Du valde {names[from]}");
             Console.WriteLine("Välj konto att överföra till");
-            int to = Menu(names, $"Du valde {names[from]}");
+            int to = Menu(names, $"Du valde {names[from]}, välj konto att överföra till", from);
             while (from == to)
             {
                 Console.WriteLine("Cannot transfer to the same account!");
-                to = Menu(names);
+                to = Menu(names, $"Du valde {names[from]}, välj konto att överföra till", from);
             }
             Console.WriteLine();
             Console.Write("Summa att överföra: ");
@@ -212,40 +220,47 @@
             }
         }
 
-        static void WithdrawFunds(string[] names, double[] amounts)
+        static void WithdrawFunds(string[] names, double[] account, string password)
         {
             string[] withdrawOptions = { "100", "200", "500", "1000", "Custom" };
             Console.WriteLine("choose account for withdrawel");
-            int from = Menu(names);
+            int choosen = Menu(names);
             Console.Write("Sum to withdraw: ");
             if (Menu(withdrawOptions) != 4)
             {
-                double sum = Convert.ToDouble(withdrawOptions[from]);
-                if (amounts[from] >= Math.Abs(sum))
+                double sum = Convert.ToDouble(withdrawOptions[choosen]);
+                Console.Write("Enter your pin code: ");
+                int count = 1;
+                while (Console.ReadLine()!=password) 
                 {
-                    amounts[from] -= sum;
-                    Console.Clear();
+                    if (count == 2)
+                    {
+                        return;
+                    }
                 }
-                else
-                {
-                    Console.WriteLine("amount is not available");
-                }
+                WithdrawAvailableAmount(account, choosen, sum);
             }
             else 
             {
                 double sum = Convert.ToDouble(Console.ReadLine());
-                if (amounts[from] >= Math.Abs(sum))
-                {
-                    amounts[from] -= sum;
-                    Console.Clear();
-                }
-                else
-                {
-                    Console.WriteLine("amount is not available");
-                }
+                WithdrawAvailableAmount(account, choosen, sum);
+                
             }
             
             
+        }
+        static void WithdrawAvailableAmount(double[] account, int choosen, double sum)
+        {
+           
+            if (account[choosen] >= Math.Abs(sum))
+            {
+                account[choosen] -= sum;
+                Console.Clear();
+            }
+            else
+            {
+                Console.WriteLine("amount is not available");
+            }
         }
     }
 }
