@@ -1,4 +1,7 @@
-﻿namespace IndividuelltProjektBankomaten
+using System;
+using System.Threading;
+
+namespace IndividuelltProjektBankomaten
 {
     internal class Program
     {
@@ -9,7 +12,6 @@
             //string[] passwordArray = { "1234", "1234", "1234", "1234", "1234", };
             (string[] usernameArray, string[] passwordArray) = LoadLoginDetails();
             string[] menuItems = { "1. Se dina konton och saldo.", "2. överföring mellan konton.", "3. ta ut pengar.", "4. Logga ut." };
-
             string filePath = "..//..//..//exempel.txt";
             //Console.WriteLine(userAccounts[0,1,1]);
             //File.WriteAllText("..//..//..//exempel.txt", "hej");
@@ -23,25 +25,40 @@
                     break;
                 }
                 int userIndex = userLogin(usernameArray, passwordArray);
+                if(userIndex == -1)
+                {
+                    continue;
+                }
                 string[] names = AccountNames(userIndex);
                 double[] amounts = AccountAmounts(userIndex);
                 while (userIndex != -1)
                 {
-                    switch (Menu(menuItems))
+                    switch (Menu(menuItems, "Campusbanken"))
                     {
                         case 0:
+                            
+                            Console.WriteLine("Dina konton");
+                            Console.WriteLine();
+                            //Console.BackgroundColor = ConsoleColor.White;
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            
                             for (int i = 0; i < names.Length; i++)
                             {
                                 Console.WriteLine($"{names[i]} : {amounts[i]:C}");
                             }
+                            Console.ResetColor();
+                            Console.WriteLine();
+                            Console.WriteLine("Tryck på valfri tangent för att återgå till huvudmenyn...");
                             Console.ReadKey();
                             break;
                         case 1:
                             TransferFunds(names, amounts);
+                            Console.WriteLine("Tryck på valfri tangent för att återgå till huvudmenyn...");
                             Console.ReadKey();
                             break;
                         case 2:
                             WithdrawFunds(names, amounts, passwordArray[userIndex]);
+                            Console.WriteLine("Tryck på valfri tangent för att återgå till huvudmenyn...");
                             Console.ReadKey();
                             break;
                         case 3:
@@ -55,58 +72,118 @@
         static void WriteFile(string username, string password)
         {
             string filePath = "..//..//..//exempel.txt";
-            File.WriteAllText(filePath, "username {" + username + "}\n password {"+password+"}");
+            File.WriteAllText(filePath, "username {" + username + "}\n password {" + password + "}");
         }
         static (string[], string[]) LoadLoginDetails()
         {
             string filePath = "..//..//..//exempel.txt";
-            
+
             string allLines = File.ReadAllText(filePath);
             string[] lines = allLines.Split('\n');
 
             string usernameString = lines[0].Substring(lines[0].IndexOf("{") + 1, lines[0].IndexOf('}') - lines[0].IndexOf('{') - 1);
             string passwordString = lines[1].Substring(lines[1].IndexOf("{") + 1, lines[1].IndexOf('}') - lines[1].IndexOf('{') - 1);
-            
+
             string[] username = usernameString.Split(',');
             string[] password = passwordString.Split(',');
 
             return (username, password);
         }
+        static string ReadPassword()
+        {
+            string pinCode = "";
+            ConsoleKey key;
+            do
+            {
+                //Reads the key but doesn't display it.
+                var keyPressed = Console.ReadKey(intercept: true);
+                key = keyPressed.Key;
+                if(key == ConsoleKey.Backspace && pinCode.Length > 0)
+                {
+                    //Removes the last character in the string
+                    pinCode = pinCode.Substring(0, pinCode.Length - 1);
+                    //Removes the last "*" on the console
+                    Console.Write("\b \b");
+                }
+                else if (char.IsDigit(keyPressed.KeyChar))
+                {
+                    pinCode += keyPressed.KeyChar;
+                    Console.Write("*");
+                }
+
+            } while (key != ConsoleKey.Enter);
+
+            return pinCode;
+        }
+        
         static int userLogin(string[] usernameArray, string[] passwordArray)
         {
             //The method does not count wrong username as a login attempt. Does not increase count.
             int count = 0;
-            Console.WriteLine("Vänligen ange ditt användarnamn: ");
+            Console.WriteLine("Ange ditt användarnamn: ");
             string username = Console.ReadLine();
 
-            while (count<3)
+            while (count < 3)
             {
-                
-                if (!Array.Exists(usernameArray, element => element == username)) 
+
+                if (!Array.Exists(usernameArray, element => element == username))
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Användarnamnet är fel. Försök igen.");
-                    Console.WriteLine("Ange lösenord: ");
+                    Console.ResetColor();
+                    Thread.Sleep(1500);
+                    Console.SetCursorPosition(0, 2);
+                    Console.WriteLine(new string(' ', Console.WindowWidth)); // Radera rad 3
+                    Console.SetCursorPosition(0, 1);
+                    Console.WriteLine(new string(' ', Console.WindowWidth));
+                    Console.SetCursorPosition(0, 1);
+
+
                     username = Console.ReadLine();
                 }
-                else if(Array.Exists(usernameArray, element => element == username))
+                else if (Array.Exists(usernameArray, element => element == username))
                 {
+                    
                     Console.WriteLine("Ange ditt lösenord: ");
                     string password = passwordArray[Array.IndexOf(usernameArray, username)];
-                    if (Console.ReadLine() == password)
+                    if (ReadPassword() == password)
                     {
                         Console.WriteLine("Du är inloggad");
                         return Array.IndexOf(usernameArray, username);
                     }
                     else
                     {
+                        Console.WriteLine();
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Fel lösenord! Försök igen.");
+                        Console.WriteLine($"{count+1} av 3 försök kvar");
+                        Console.ResetColor();
+                        Console.SetCursorPosition(0, 3);
+                        Console.WriteLine(new string(' ', Console.WindowWidth)); // Radera rad 3
+                        Console.SetCursorPosition(0, 2);
+                        Console.WriteLine(new string(' ', Console.WindowWidth)); // Radera rad 3
+                        Console.SetCursorPosition(0, 2);
                     }
                     count++;
                 }
             }
-            Console.WriteLine("Inloggning misslyckades!");
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Inloggning misslyckades! Återgår till startmenyn.");
+            Console.ResetColor();
+            Thread.Sleep(2000);
             return -1;
-            
+
+        }
+        static void Rubric(string message)
+        {
+            Console.Clear();
+            //Console.BackgroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(message);
+
+            Console.ResetColor();
+            Console.WriteLine();
         }
         static int Menu(string[] menuItems, string? message = "", int? previousSelection = -1)
         {
@@ -116,22 +193,17 @@
 
             do
             {
-                Console.Clear();
-                Console.BackgroundColor = ConsoleColor.White;
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.WriteLine(message);
-                Console.ResetColor();
-                Console.WriteLine();
+                Rubric(message);
                 for (int i = 0; i < menuItems.Length; i++)
                 {
-                    if(i == currentSelection)
+                    if (i == currentSelection)
                     {
                         Console.BackgroundColor = ConsoleColor.White;
                         Console.ForegroundColor = ConsoleColor.Black;
                         Console.WriteLine($"> {menuItems[i]}");
                         Console.ResetColor();
                     }
-                    else if(i == previousSelection)
+                    else if (i == previousSelection)
                     {
                         //Console.BackgroundColor = ConsoleColor.White;
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -161,16 +233,16 @@
 
         static string[] AccountNames(int index)
         {
-            if(index < 0 && index > 4)
+            if (index < 0 && index > 4)
             {
-                return new string[] {"error"} ;
+                return new string[] { "error" };
             }
             string[][] accountNames = new string[5][];
             accountNames[0] = new string[] { "Privatkonto", "Sparkonto" };
             accountNames[1] = new string[] { "Privatkonto", "Sparkonto", "Lönekonto" };
             accountNames[2] = new string[] { "Privatkonto", "Sparkonto", "Lönekonto", "Pensionskonto" };
             accountNames[3] = new string[] { "Privatkonto", "Sparkonto", "Lönekonto", "Pensionskonto", "Investeringssparkonto" };
-            accountNames[4] = new string[] { "Ungdomskonto", "Sparkonto"};
+            accountNames[4] = new string[] { "Ungdomskonto", "Sparkonto" };
             return accountNames[index];
         }
 
@@ -183,23 +255,27 @@
             double[][] accountAmount = new double[5][];
             accountAmount[0] = new double[] { 5000.0, 15000.0 };
             accountAmount[1] = new double[] { 3000.0, 10000.0, 25000.0 };
-            accountAmount[2] = new double[] { 4000.0, 8000.0, 20000.0, 50000.0};
-            accountAmount[3] = new double[] { 2000.0, 7000.0, 15000.0, 45000.0, 30000.0};
-            accountAmount[4] = new double[] { 1000.0, 6000.0};
+            accountAmount[2] = new double[] { 4000.0, 8000.0, 20000.0, 50000.0 };
+            accountAmount[3] = new double[] { 2000.0, 7000.0, 15000.0, 45000.0, 30000.0 };
+            accountAmount[4] = new double[] { 1000.0, 6000.0 };
             return accountAmount[index];
         }
 
         static void TransferFunds(string[] names, double[] amounts)
         {
             Console.WriteLine("Välj konto att överföra från");
-            int from = Menu(names);
-            Console.WriteLine($"Du valde {names[from]}");
-            Console.WriteLine("Välj konto att överföra till");
-            int to = Menu(names, $"Du valde {names[from]}, välj konto att överföra till", from);
+            int from = Menu(names, "Överföring\nVälj konto att överföra från.");
+            //Console.WriteLine($"Du valde {names[from]}");
+            //Console.WriteLine("Välj konto att överföra till");
+            int to = Menu(names, $"Överföring\nDu valde {names[from]}, välj konto att överföra till", from);
             while (from == to)
             {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Kan ej överföra till samma konto!");
-                to = Menu(names, $"Du valde {names[from]}, välj konto att överföra till", from);
+                Console.ResetColor();
+                Thread.Sleep(1000);
+                to = Menu(names, $"Överföring\nDu valde {names[from]}, välj konto att överföra till", from);
             }
             Console.WriteLine();
             Console.Write("Summa att överföra: ");
@@ -209,14 +285,16 @@
                 amounts[from] -= sum;
                 amounts[to] += sum;
                 Console.Clear();
-                Console.WriteLine($"{names[from]} : {amounts[from]:C}");
-                Console.WriteLine($"{names[to]} : {amounts[to]:C}");
+                //Console.ForegroundColor = ConsoleColor.Gr;
+                Console.WriteLine("Överföring genomförd");
+                //Console.WriteLine($"{names[from]} : {amounts[from]:C}");
+                //Console.WriteLine($"{names[to]} : {amounts[to]:C}");
             }
         }
 
         static void WithdrawFunds(string[] names, double[] account, string password)
         {
-            string[] withdrawOptions = { "100", "200", "500", "1000", "Custom" };
+            string[] withdrawOptions = { "100", "200", "500", "1000", "Ange eget belopp" };
             Console.WriteLine("Välj konto för uttag");
             int choosen = Menu(names);
             Console.Write("Summa att ta ut: ");
@@ -225,7 +303,7 @@
                 double sum = Convert.ToDouble(withdrawOptions[choosen]);
                 Console.Write("Ange pinkod: ");
                 int count = 1;
-                while (Console.ReadLine()!=password) 
+                while (Console.ReadLine() != password)
                 {
                     if (count == 2)
                     {
@@ -234,7 +312,7 @@
                 }
                 WithdrawAvailableAmount(account, choosen, sum);
             }
-            else 
+            else
             {
                 double sum = Convert.ToDouble(Console.ReadLine());
                 Console.Write("Ange pinkod: ");
@@ -249,15 +327,15 @@
                 WithdrawAvailableAmount(account, choosen, sum);
 
             }
-            
-            
+
+
         }
         static void WithdrawAvailableAmount(double[] account, int choosen, double sum)
         {
-           
+
             if (account[choosen] >= Math.Abs(sum))
             {
-                account[choosen] = account[choosen]-sum;
+                account[choosen] = account[choosen] - sum;
                 Console.Clear();
                 Console.WriteLine(account[choosen]);
             }
