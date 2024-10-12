@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.Metrics;
+using System.Reflection;
 using System.Threading;
 
 namespace IndividuelltProjektBankomaten
@@ -37,9 +39,7 @@ namespace IndividuelltProjektBankomaten
                     {
                         case 0:
                             
-                            Console.WriteLine("Dina konton");
-                            Console.WriteLine();
-                            //Console.BackgroundColor = ConsoleColor.White;
+                            Console.WriteLine("Mina konton\n");
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             
                             for (int i = 0; i < names.Length; i++)
@@ -48,18 +48,13 @@ namespace IndividuelltProjektBankomaten
                             }
                             Console.ResetColor();
                             Console.WriteLine();
-                            Console.WriteLine("Tryck på valfri tangent för att återgå till huvudmenyn...");
-                            Console.ReadKey();
+                            ReturnToMenu();
                             break;
                         case 1:
                             TransferFunds(names, amounts);
-                            Console.WriteLine("Tryck på valfri tangent för att återgå till huvudmenyn...");
-                            Console.ReadKey();
                             break;
                         case 2:
                             WithdrawFunds(names, amounts, passwordArray[userIndex]);
-                            Console.WriteLine("Tryck på valfri tangent för att återgå till huvudmenyn...");
-                            Console.ReadKey();
                             break;
                         case 3:
                             userIndex = -1;
@@ -68,6 +63,31 @@ namespace IndividuelltProjektBankomaten
                 }
             }
 
+        }
+        static void ReturnToMenu()
+        {
+            int count = 1;
+            while (true)
+            {
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
+                    break;
+                }
+
+                
+                Console.Write($"Tryck på valfri tangent för att återgå till huvudmenyn..{new string('.', count % 2)}   ");
+                Console.SetCursorPosition(0, Console.CursorTop);
+                // Vänta en kort stund för att minska CPU-användning och se animeringen
+                Thread.Sleep(500);
+                count++;
+            }
+        }
+        static void ErrorMessage(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.ResetColor();
         }
         static void WriteFile(string username, string password)
         {
@@ -115,6 +135,27 @@ namespace IndividuelltProjektBankomaten
 
             return pinCode;
         }
+
+        static bool checkPassword(string password, int count)
+        {
+            Console.WriteLine("Ange pinkod: ");
+            var cursorPosition = Console.GetCursorPosition();
+            if (ReadPassword() == password)
+            {
+                return true;
+            }
+            else
+            {
+                Console.WriteLine();
+                ErrorMessage($"Fel kod!\n{2 - count} försök kvar");
+                Console.SetCursorPosition(0, cursorPosition.Top);
+                Console.WriteLine(new string(' ', Console.WindowWidth)); // Radera rad 3
+                Console.SetCursorPosition(0, cursorPosition.Top-1);
+                Console.WriteLine(new string(' ', Console.WindowWidth)); // Radera rad 3
+                Console.SetCursorPosition(0, cursorPosition.Top-1);
+                return false;
+            }
+        }
         
         static int userLogin(string[] usernameArray, string[] passwordArray)
         {
@@ -143,26 +184,10 @@ namespace IndividuelltProjektBankomaten
                 }
                 else if (Array.Exists(usernameArray, element => element == username))
                 {
-                    
-                    Console.WriteLine("Ange ditt lösenord: ");
                     string password = passwordArray[Array.IndexOf(usernameArray, username)];
-                    if (ReadPassword() == password)
+                    if (checkPassword(password, count))
                     {
-                        Console.WriteLine("Du är inloggad");
                         return Array.IndexOf(usernameArray, username);
-                    }
-                    else
-                    {
-                        Console.WriteLine();
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Fel lösenord! Försök igen.");
-                        Console.WriteLine($"{count+1} av 3 försök kvar");
-                        Console.ResetColor();
-                        Console.SetCursorPosition(0, 3);
-                        Console.WriteLine(new string(' ', Console.WindowWidth)); // Radera rad 3
-                        Console.SetCursorPosition(0, 2);
-                        Console.WriteLine(new string(' ', Console.WindowWidth)); // Radera rad 3
-                        Console.SetCursorPosition(0, 2);
                     }
                     count++;
                 }
@@ -178,7 +203,6 @@ namespace IndividuelltProjektBankomaten
         static void Rubric(string message)
         {
             Console.Clear();
-            //Console.BackgroundColor = ConsoleColor.White;
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(message);
 
@@ -265,31 +289,39 @@ namespace IndividuelltProjektBankomaten
         {
             Console.WriteLine("Välj konto att överföra från");
             int from = Menu(names, "Överföring\nVälj konto att överföra från.");
-            //Console.WriteLine($"Du valde {names[from]}");
-            //Console.WriteLine("Välj konto att överföra till");
             int to = Menu(names, $"Överföring\nDu valde {names[from]}, välj konto att överföra till", from);
             while (from == to)
             {
                 Console.Clear();
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Kan ej överföra till samma konto!");
-                Console.ResetColor();
-                Thread.Sleep(1000);
+                ErrorMessage("Kan ej överföra till samma konto!");
+                Thread.Sleep(1500);
+                Console.Clear();
                 to = Menu(names, $"Överföring\nDu valde {names[from]}, välj konto att överföra till", from);
             }
             Console.WriteLine();
             Console.Write("Summa att överföra: ");
+
             double sum = Convert.ToDouble(Console.ReadLine());
-            if (amounts[from] >= sum)
+            if (amounts[from] >= sum && sum>0)
             {
                 amounts[from] -= sum;
                 amounts[to] += sum;
                 Console.Clear();
-                //Console.ForegroundColor = ConsoleColor.Gr;
-                Console.WriteLine("Överföring genomförd");
-                //Console.WriteLine($"{names[from]} : {amounts[from]:C}");
-                //Console.WriteLine($"{names[to]} : {amounts[to]:C}");
+                Console.WriteLine("Transaktion genomförd!\n\n\n\n\n\n\n\n");
             }
+            else if (sum <= 0 )
+            {
+                Console.Clear();
+                ErrorMessage("Ogiltig summa!\n\n\n\n\n\n\n\n");
+            }
+            else
+            {
+                Console.Clear();
+                ErrorMessage("Medges ej!");
+                Console.WriteLine("Summan överstiger tillgängliga medel\n\n\n\n\n\n\n\n");
+            }
+            ReturnToMenu();
+
         }
 
         static void WithdrawFunds(string[] names, double[] account, string password)
@@ -301,35 +333,35 @@ namespace IndividuelltProjektBankomaten
             if (Menu(withdrawOptions) != 4)
             {
                 double sum = Convert.ToDouble(withdrawOptions[choosen]);
-                Console.Write("Ange pinkod: ");
-                int count = 1;
-                while (Console.ReadLine() != password)
+                int count = 0;
+                while (count < 3)
                 {
-                    if (count == 2)
+                    if (checkPassword(password, count))
                     {
+                        WithdrawAvailableAmount(account, choosen, sum);
                         return;
                     }
+                    count++;
                 }
-                WithdrawAvailableAmount(account, choosen, sum);
             }
             else
             {
                 double sum = Convert.ToDouble(Console.ReadLine());
-                Console.Write("Ange pinkod: ");
-                int count = 1;
-                while (Console.ReadLine() != password)
+                int count = 0;
+                while (count < 3)
                 {
-                    if (count == 2)
+                    if (checkPassword(password, count))
                     {
+                        WithdrawAvailableAmount(account, choosen, sum);
                         return;
                     }
+                    count++;
                 }
-                WithdrawAvailableAmount(account, choosen, sum);
+                
 
             }
-
-
         }
+
         static void WithdrawAvailableAmount(double[] account, int choosen, double sum)
         {
 
@@ -337,12 +369,14 @@ namespace IndividuelltProjektBankomaten
             {
                 account[choosen] = account[choosen] - sum;
                 Console.Clear();
-                Console.WriteLine(account[choosen]);
+                Console.WriteLine("Transaktion genomförd!\n\n\n\n\n\n\n\n");
             }
             else
             {
-                Console.WriteLine("Kontot saknar tillgängliga medel");
+                Console.Clear();
+                ErrorMessage("Medges ej!\n\n\n\n\n\n\n\n");
             }
+            ReturnToMenu();
         }
     }
 }
