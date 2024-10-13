@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Metrics;
+using System.Globalization;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
@@ -149,6 +150,7 @@ namespace IndividuelltProjektBankomaten
         //Method to read the users input for withdrawel and transfers.
         static double ReadSum()
         {
+            int amountOfCommas = 0;
             string sum = "";
             ConsoleKey key;
             do
@@ -163,11 +165,18 @@ namespace IndividuelltProjektBankomaten
                     //Removes the last added character on the console.
                     Console.Write("\b \b");
                 }
-                else if (char.IsDigit(keyPressed.KeyChar) || keyPressed.KeyChar==',')
+                else if (char.IsDigit(keyPressed.KeyChar))
                 {
                     //Adds the character to the string and writes it.
                     sum += keyPressed.KeyChar;
                     Console.Write(keyPressed.KeyChar);
+                }
+                //If the user adds a comma, they can only do it once.
+                else if (keyPressed.KeyChar == ',' && amountOfCommas == 0)
+                {
+                    sum += '.';
+                    Console.Write(keyPressed.KeyChar);
+                    amountOfCommas++;
                 }
                 //Logic allowing the user to exit this method if wanted.
                 else if (key == ConsoleKey.Escape)
@@ -176,9 +185,19 @@ namespace IndividuelltProjektBankomaten
                 }
 
             } while (key != ConsoleKey.Enter);
-            //Skip to the next row for a nicer console display.
-            Console.Write("\n");
-            return Convert.ToDouble(sum);
+            Console.WriteLine();
+            //Convert the sum to double and not loose the decimals.
+            if (double.TryParse(sum, NumberStyles.Any, CultureInfo.InvariantCulture, out double result))
+            {
+                //Round up to only two decimals.
+                return Math.Round(result,2);
+            }
+            else
+            {
+                //Invalid input
+                ErrorMessage("Ogiltig summa! Försök igen.");
+                return ReadSum();
+            }
         }
         static int ReadPassword(string password)
         {
