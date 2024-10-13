@@ -1,6 +1,6 @@
 # Banking Console Application
 
-This is a console-based banking system that allows users to log in, view their accounts, transfer funds, and withdraw money. 
+This is a console-based banking system that allows users to log in, view their accounts, transfer funds, and withdraw money. The code is structured to avoid the possibility for invalid user inputs by forcing the user to navigate through a menu in most cases.
 
 ## Features
 
